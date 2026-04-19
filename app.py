@@ -211,7 +211,8 @@ def setup():
                                max_age=60*60*24*365)
             return response
 
-    return render_template("setup.html")
+    existing = load_data(request.cookies.get("user_name"))
+    return render_template("setup.html", existing=existing)
 @app.route("/history")
 def history():
     name = request.cookies.get("user_name")
