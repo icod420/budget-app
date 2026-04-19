@@ -10,3 +10,4 @@ supabase_functions
 supafunc
 websockets
 gunicorn
+anthropic
