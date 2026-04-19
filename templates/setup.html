@@ -32,9 +32,9 @@
             <div class="card">
                 <h3>Your Details</h3>
                 <label>Your Name</label>
-                <input type="text" name="name" placeholder="Enter your name" required>
+                <input type="text" name="name" placeholder="Enter your name" value="{{ existing.name if existing else '' }}" required>
                 <label>Monthly Pay (£)</label>
-                <input type="number" name="pay" placeholder="e.g. 2300" step="0.01" required>
+                <input type="number" name="pay" placeholder="e.g. 2300" value="{{ existing.pay if existing else '' }}" step="0.01" required>
             </div>
             <div class="card">
                 <h3>Your Bills</h3>
@@ -47,7 +47,7 @@
                 </div>
                 <button type="button" class="add-btn" onclick="addBill()">+ Add Another Bill</button>
             </div>
-            <button class="btn" type="submit">Save and Open My Calculator</button>
+            <button class="btn" type="submit">Save and Open My Calculator</button><a href="/" style="display:block; text-align:center; margin-top:10px; padding:12px; background:#16213e; color:#a0a0b0; border-radius:10px; text-decoration:none; font-size:14px;">Cancel — Go Back</a>
         </form>
     </div>
     <script>
