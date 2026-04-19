@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from datetime import datetime
+import anthropic
 import json
 import os
-
 try:
     from supabase import create_client
     SUPABASE_URL = "https://njapyphognzbdzjkgkgq.supabase.co"
@@ -19,7 +19,61 @@ DATA_FILE = "budget_data.json"
 
 CATEGORIES = ["Food & Groceries", "Fuel", "Drink",
               "Shopping", "Entertainment"]
+ANTHROPIC_KEY = os.environ.get("ANTHROPIC_KEY", "")
 
+def get_ai_advice(data, result):
+    try:
+        client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+        
+        history = data.get("history", [])
+        savings = data.get("savings", {})
+        target = savings.get("target", 0) if isinstance(savings, dict) else 0
+        entries = savings.get("entries", []) if isinstance(savings, dict) else []
+        total_saved = sum(e["amount"] for e in entries)
+        
+        history_summary = ""
+        if len(history) > 1:
+            for h in history[-3:]:
+                history_summary += f"{h['month']}: Pay £{h['pay']}, Left over £{h['leftover']}, Status {h['status']}\n"
+        
+        cat_summary = ""
+        for cat, amt in result["categories"].items():
+            if amt > 0:
+                cat_summary += f"{cat}: £{amt}\n"
+        
+        prompt = f"""You are a friendly personal financial advisor. Analyse this person's budget and give them SHORT, specific, actionable advice in 3-4 sentences maximum. Be warm, direct and personalised. Use their name. Focus on the most important insight from their data.
+
+Name: {data['name']}
+This month's pay: £{result['pay']}
+Total bills: £{result['total_bills']}
+Extra spending: £{result['extra']}
+Left over: £{result['leftover']}
+Status: {result['status']}
+
+Spending breakdown:
+{cat_summary}
+
+Savings target: £{target}
+Total saved so far: £{total_saved}
+
+Recent history:
+{history_summary if history_summary else 'First month using the app'}
+
+Give personalised advice based on these real numbers. Be specific with amounts. Maximum 4 sentences."""
+
+        message = client.messages.create(
+            model="claude-opus-4-20250514",
+            max_tokens=300,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        
+        return message.content[0].text
+        
+    except Exception as e:
+        print(f"AI advisor error: {e}")
+        return None
 def load_data(name=None):
     if USE_SUPABASE and name:
         try:
@@ -168,11 +222,15 @@ def calculate():
         "goal_hit": leftover >= goal if goal > 0 else None
     }
 
+    result["categories"] = cat_spending
+    ai_advice = get_ai_advice(data, result)
+
     return render_template("index.html",
                            data=data,
                            categories=CATEGORIES,
                            cat_spending=cat_spending,
                            result=result,
+                           ai_advice=ai_advice,
                            today=datetime.now().strftime("%A %d %B %Y"))
 
 @app.route("/setup", methods=["GET", "POST"])
