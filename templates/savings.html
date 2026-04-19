@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Pot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .metric { background: #16213e; border-radius: 10px; padding: 15px; text-align: center; }
+        .metric-label { font-size: 11px; color: #a0a0b0; margin-bottom: 6px; }
+        .metric-value { font-size: 20px; font-weight: bold; }
+        .green { color: #5DCAA5; }
+        .red { color: #E24B4A; }
+        .orange { color: #BA7517; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card h3 { font-size: 13px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; }
+        label { font-size: 12px; color: #a0a0b0; display: block; margin-bottom: 4px; margin-top: 12px; }
+        input { width: 100%; padding: 10px 12px; background: #0f3460; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn { width: 100%; padding: 12px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-teal { background: #5DCAA5; color: #1a1a2e; }
+        .prog-bg { background: #0f3460; border-radius: 6px; height: 24px; margin: 10px 0 4px; overflow: hidden; }
+        .prog-fill { height: 24px; border-radius: 6px; }
+        .prog-text { font-size: 12px; color: #a0a0b0; margin-bottom: 10px; }
+        .tip { background: #0f3460; border-radius: 8px; padding: 10px 15px; font-size: 13px; color: #5DCAA5; margin: 10px 0; }
+        .entry-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        .entry-row:last-child { border-bottom: none; }
+        .entry-date { font-size: 11px; color: #a0a0b0; }
+        .entry-note { font-size: 12px; color: #a0a0b0; font-style: italic; }
+        .entry-amount { font-size: 15px; font-weight: bold; color: #5DCAA5; }
+        .nav { display: flex; gap: 8px; margin: 15px 0; }
+        .nav a { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; background: #1D9E75; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Savings Pot</h1>
+        <p>{{ data.name }}'s yearly savings tracker</p>
+    </div>
+
+    <div class="container">
+
+        <div class="nav">
+            <a href="/">Back to Calculator</a>
+        </div>
+
+        {% set total_saved = savings.entries | sum(attribute='amount') if savings.entries else 0 %}
+        {% set target = savings.target if savings.target else 0 %}
+        {% set remaining = [target - total_saved, 0] | max %}
+        {% set months_left = 12 - now.month if now else 8 %}
+
+        <div class="metric-row">
+            <div class="metric">
+                <div class="metric-label">Total Saved</div>
+                <div class="metric-value green">£{{ "%.2f"|format(total_saved) }}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Target</div>
+                <div class="metric-value orange">{% if target > 0 %}£{{ "%.2f"|format(target) }}{% else %}Not set{% endif %}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Still Needed</div>
+                <div class="metric-value red">£{{ "%.2f"|format(remaining) }}</div>
+            </div>
+        </div>
+
+        {% if target > 0 %}
+        {% set pct = [((total_saved / target) * 100), 100] | min %}
+        <div class="prog-bg">
+            <div class="prog-fill" style="width:{{ pct }}%; background:{% if pct >= 75 %}#1D9E75{% elif pct >= 40 %}#BA7517{% else %}#185FA5{% endif %};"></div>
+        </div>
+        <p class="prog-text">{{ pct|round|int }}% of target reached — £{{ "%.2f"|format(total_saved) }} saved of £{{ "%.2f"|format(target) }}</p>
+        {% endif %}
+
+        <div class="card">
+            <h3>Set Yearly Target</h3>
+            <form method="POST" action="/savings">
+                <input type="hidden" name="action" value="set_target">
+                <label>Yearly Savings Target (£)</label>
+                <input type="number" name="target" value="{{ target }}" step="0.01">
+                <button class="btn" type="submit">Save Target</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Add to Savings Pot</h3>
+            <form method="POST" action="/savings">
+                <input type="hidden" name="action" value="add_to_pot">
+                <label>Amount (£)</label>
+                <input type="number" name="amount" placeholder="e.g. 150" step="0.01">
+                <label>Note (optional)</label>
+                <input type="text" name="note" placeholder="e.g. April savings">
+                <button class="btn btn-teal" type="submit">Add to Pot</button>
+            </form>
+        </div>
+
+        {% if savings.entries %}
+        <div class="card">
+            <h3>Savings History</h3>
+            {% for entry in savings.entries | reverse %}
+            <div class="entry-row">
+                <div>
+                    <div class="entry-date">{{ entry.date }}</div>
+                    {% if entry.note %}
+                    <div class="entry-note">{{ entry.note }}</div>
+                    {% endif %}
+                </div>
+                <div class="entry-amount">+£{{ "%.2f"|format(entry.amount) }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

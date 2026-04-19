@@ -1,0 +1,43 @@
+{
+  "id": 2,
+  "pay": 1000.0,
+  "bills": [
+    {
+      "name": "car",
+      "amount": 100.0
+    },
+    {
+      "name": "ins car",
+      "amount": 100.0
+    },
+    {
+      "name": "phone",
+      "amount": 20.0
+    },
+    {
+      "name": "snacks",
+      "amount": 20.0
+    }
+  ],
+  "history": [
+    {
+      "month": "April 2026",
+      "pay": 1000.0,
+      "total_bills": 240.0,
+      "extra": 100.0,
+      "leftover": 660.0,
+      "status": "GREEN",
+      "note": "",
+      "categories": {
+        "Food & Groceries": 100.0,
+        "Fuel": 0.0,
+        "Drink": 0.0,
+        "Shopping": 0.0,
+        "Entertainment": 0.0
+      }
+    }
+  ],
+  "savings": {},
+  "pin": "",
+  "name": "Matt"
+}

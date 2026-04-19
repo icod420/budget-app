@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator Setup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card h3 { font-size: 13px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; }
+        label { font-size: 12px; color: #a0a0b0; display: block; margin-bottom: 4px; margin-top: 12px; }
+        input { width: 100%; padding: 10px 12px; background: #0f3460; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; outline: none; }
+        .bill-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .bill-row input:first-child { flex: 2; }
+        .bill-row input:last-child { flex: 1; }
+        .add-btn { background: #0f3460; color: #5DCAA5; border: none; border-radius: 8px; padding: 8px 15px; font-size: 13px; cursor: pointer; margin-top: 8px; }
+        .btn { width: 100%; padding: 14px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Budget Calculator Setup</h1>
+        <p>Tell us about yourself</p>
+    </div>
+    <div class="container">
+        <form method="POST" action="/setup">
+            <div class="card">
+                <h3>Your Details</h3>
+                <label>Your Name</label>
+                <input type="text" name="name" placeholder="Enter your name" required>
+                <label>Monthly Pay (£)</label>
+                <input type="number" name="pay" placeholder="e.g. 2300" step="0.01" required>
+            </div>
+            <div class="card">
+                <h3>Your Bills</h3>
+                <p style="font-size:12px; color:#a0a0b0; margin-bottom:10px;">Add your bills below</p>
+                <div id="bills">
+                    <div class="bill-row">
+                        <input type="text" name="bill_name" placeholder="Bill name">
+                        <input type="number" name="bill_amount" placeholder="£ Amount" step="0.01">
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addBill()">+ Add Another Bill</button>
+            </div>
+            <button class="btn" type="submit">Save and Open My Calculator</button>
+        </form>
+    </div>
+    <script>
+        function addBill() {
+            const div = document.createElement('div');
+            div.className = 'bill-row';
+            div.innerHTML = '<input type="text" name="bill_name" placeholder="Bill name"><input type="number" name="bill_amount" placeholder="£ Amount" step="0.01">';
+            document.getElementById('bills').appendChild(div);
+        }
+    </script>
+</body>
+</html>

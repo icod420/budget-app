@@ -1,0 +1,12 @@
+flask
+supabase
+gotrue
+postgrest
+httpx
+realtime
+storage3
+supabase_auth
+supabase_functions
+supafunc
+websockets
+gunicorn

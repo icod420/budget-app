@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card h3 { font-size: 13px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+        .bar-label { font-size: 12px; color: #a0a0b0; width: 60px; text-align: right; flex-shrink: 0; }
+        .bar-bg { flex: 1; background: #0f3460; border-radius: 4px; height: 24px; overflow: hidden; }
+        .bar-fill { height: 24px; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white; font-weight: bold; }
+        .bar-value { font-size: 12px; color: #5DCAA5; width: 70px; flex-shrink: 0; }
+        .bill-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #0f3460; font-size: 13px; }
+        .bill-row:last-child { border-bottom: none; }
+        .bill-amt { color: #5DCAA5; font-weight: bold; }
+        .empty { text-align: center; padding: 30px; color: #a0a0b0; font-size: 13px; }
+        .nav { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .nav a { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; background: #1D9E75; }
+        .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #0f3460; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { color: #a0a0b0; }
+        .stat-value { color: #ffffff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Your Dashboard</h1>
+        <p>{{ data.name }}'s financial overview</p>
+    </div>
+
+    <div class="container">
+
+        <div class="nav">
+            <a href="/">Back to Calculator</a>
+        </div>
+
+        {% if history %}
+
+        {% set latest = history[-1] %}
+        {% set max_leftover = history | max(attribute='leftover') %}
+
+        <div class="card">
+            <h3>Monthly Left Over</h3>
+            {% for entry in history %}
+            {% set pct = ([((entry.leftover / entry.pay) * 100), 100] | min) if entry.pay > 0 else 0 %}
+            <div class="bar-row">
+                <span class="bar-label">{{ entry.month.split(' ')[0][:3] }}</span>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width:{{ [pct, 5] | max }}%; background:{% if entry.status == 'GREEN' %}#1D9E75{% elif entry.status == 'ORANGE' %}#BA7517{% else %}#E24B4A{% endif %};"></div>
+                </div>
+                <span class="bar-value">£{{ "%.0f"|format(entry.leftover) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h3>Latest Month Summary — {{ latest.month }}</h3>
+            <div class="stat-row">
+                <span class="stat-label">Pay</span>
+                <span class="stat-value">£{{ "%.2f"|format(latest.pay) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Total Bills</span>
+                <span class="stat-value">£{{ "%.2f"|format(latest.total_bills) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Extra Spending</span>
+                <span class="stat-value">£{{ "%.2f"|format(latest.extra) }}</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Left Over</span>
+                <span class="stat-value" style="color:#5DCAA5;">£{{ "%.2f"|format(latest.leftover) }}</span>
+            </div>
+            {% if latest.categories %}
+            {% for cat, amt in latest.categories.items() %}
+            {% if amt > 0 %}
+            <div class="stat-row">
+                <span class="stat-label">{{ cat }}</span>
+                <span class="stat-value">£{{ "%.2f"|format(amt) }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        {% else %}
+        <div class="empty">
+            No data yet!<br>Calculate your budget first to see your dashboard.
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h3>Bills Breakdown</h3>
+            {% for bill in data.bills %}
+            <div class="bill-row">
+                <span>{{ bill.name }}</span>
+                <span class="bill-amt">£{{ "%.2f"|format(bill.amount) }}</span>
+            </div>
+            {% endfor %}
+            <div class="bill-row" style="margin-top:8px;">
+                <span style="font-weight:bold;">Total</span>
+                <span class="bill-amt">£{{ "%.2f"|format(data.bills | sum(attribute='amount')) }}</span>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

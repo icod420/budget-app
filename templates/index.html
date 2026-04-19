@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.name }}'s Budget Calculator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .metric { background: #16213e; border-radius: 10px; padding: 15px; text-align: center; }
+        .metric-label { font-size: 11px; color: #a0a0b0; margin-bottom: 6px; }
+        .metric-value { font-size: 22px; font-weight: bold; }
+        .green { color: #5DCAA5; }
+        .red { color: #E24B4A; }
+        .orange { color: #BA7517; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card h3 { font-size: 13px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; }
+        label { font-size: 12px; color: #a0a0b0; display: block; margin-bottom: 4px; margin-top: 12px; }
+        input, textarea { width: 100%; padding: 10px 12px; background: #0f3460; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; outline: none; }
+        textarea { height: 70px; resize: none; }
+        .cat-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #0f3460; }
+        .cat-row:last-child { border-bottom: none; }
+        .cat-name { font-size: 13px; color: #ffffff; }
+        .cat-input { width: 120px; padding: 6px 10px; background: #0f3460; color: #ffffff; border: none; border-radius: 6px; font-size: 13px; outline: none; text-align: right; }
+        .btn { width: 100%; padding: 14px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .btn:hover { background: #085041; }
+        .prog-bg { background: #0f3460; border-radius: 6px; height: 20px; margin: 10px 0 4px; overflow: hidden; }
+        .prog-fill { height: 20px; border-radius: 6px; transition: width 0.3s; }
+        .status-green { background: #1D9E75; color: white; border-radius: 10px; padding: 16px 20px; text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; }
+        .status-orange { background: #BA7517; color: white; border-radius: 10px; padding: 16px 20px; text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; }
+        .status-red { background: #E24B4A; color: white; border-radius: 10px; padding: 16px 20px; text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; }
+        .tips { background: #0f3460; border-radius: 10px; padding: 15px; margin: 10px 0; }
+        .tips p { font-size: 13px; color: #5DCAA5; line-height: 1.6; }
+        .bill-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #0f3460; font-size: 13px; }
+        .bill-row:last-child { border-bottom: none; }
+        .bill-amt { color: #5DCAA5; }
+        .summary-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; }
+        .summary-row.total { font-weight: bold; font-size: 15px; color: #5DCAA5; border-top: 1px solid #0f3460; margin-top: 5px; padding-top: 10px; }
+        .goal-hit { background: #085041; color: #5DCAA5; border-radius: 8px; padding: 10px 15px; font-size: 13px; font-weight: bold; margin: 8px 0; }
+        .goal-miss { background: #4A1B0C; color: #F0997B; border-radius: 8px; padding: 10px 15px; font-size: 13px; font-weight: bold; margin: 8px 0; }
+        .nav { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .nav a { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; }
+        .nav-history { background: #185FA5; }
+        .nav-settings { background: #16213e; color: #a0a0b0; border: 1px solid #0f3460; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ data.name }}'s Budget Calculator</h1>
+        <p>{{ today }}</p>
+    </div>
+
+    <div class="container">
+
+        <div class="metric-row">
+            <div class="metric">
+                <div class="metric-label">Monthly Pay</div>
+                <div class="metric-value green">£{{ "%.0f"|format(data.pay) }}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Total Bills</div>
+                <div class="metric-value red">£{{ "%.0f"|format(data.bills|sum(attribute='amount')) }}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Left Over</div>
+                <div class="metric-value green">£{{ "%.0f"|format(data.pay - data.bills|sum(attribute='amount')) }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Bills Breakdown</h3>
+            {% for bill in data.bills %}
+            <div class="bill-row">
+                <span>{{ bill.name }}</span>
+                <span class="bill-amt">£{{ "%.2f"|format(bill.amount) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="/calculate">
+            <div class="card">
+                <h3>This Month</h3>
+                <label>Monthly Pay (£)</label>
+                <input type="number" name="pay" value="{{ data.pay }}" step="0.01">
+                <label>Savings Goal (£) — optional</label>
+                <input type="number" name="goal" value="0" step="0.01">
+                <label>Monthly Note — optional</label>
+                <textarea name="note" placeholder="e.g. Had overtime this week..."></textarea>
+            </div>
+
+            <div class="card">
+                <h3>Spending Categories</h3>
+                {% for cat in categories %}
+                <div class="cat-row">
+                    <span class="cat-name">{{ cat }}</span>
+                    <input class="cat-input" type="number" name="{{ cat }}" value="0" step="0.01">
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="btn" type="submit">Calculate</button>
+        </form>
+
+        {% if result %}
+        <div class="card" style="margin-top:20px;">
+            <h3>Results</h3>
+            <div class="summary-row"><span>Monthly Pay</span><span>£{{ "%.2f"|format(result.pay) }}</span></div>
+            <div class="summary-row"><span>Total Bills</span><span>£{{ "%.2f"|format(result.total_bills) }}</span></div>
+            <div class="summary-row"><span>Extra Spending</span><span>£{{ "%.2f"|format(result.extra) }}</span></div>
+            <div class="summary-row total"><span>Left Over</span><span>£{{ "%.2f"|format(result.leftover) }}</span></div>
+        </div>
+
+        <div class="prog-bg">
+            <div class="prog-fill" style="width:{{ result.pct }}%; background:{% if result.pct > 80 %}#E24B4A{% elif result.pct > 60 %}#BA7517{% else %}#1D9E75{% endif %};"></div>
+        </div>
+        <p style="font-size:12px; color:#a0a0b0;">{{ result.pct }}% of income used</p>
+
+        {% if result.status == "GREEN" %}
+        <div class="status-green">GREEN — {{ result.status_msg }}</div>
+        {% elif result.status == "ORANGE" %}
+        <div class="status-orange">ORANGE — {{ result.status_msg }}</div>
+        {% else %}
+        <div class="status-red">RED — {{ result.status_msg }}</div>
+        {% endif %}
+
+        {% if result.goal > 0 %}
+            {% if result.goal_hit %}
+            <div class="goal-hit">Savings Goal £{{ "%.2f"|format(result.goal) }} — YES YOU CAN HIT IT!</div>
+            {% else %}
+            <div class="goal-miss">Savings Goal £{{ "%.2f"|format(result.goal) }} — NOT QUITE THIS MONTH</div>
+            {% endif %}
+        {% endif %}
+
+        {% if result.tips %}
+        <div class="tips">
+            {% for tip in result.tips %}
+            <p>💡 {{ tip }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+       <div class="nav">
+    <a href="/dashboard" class="nav-history">Dashboard</a>
+    <a href="/savings" class="nav-history" style="background:#5DCAA5; color:#1a1a2e;">Savings</a>
+    <a href="/history" class="nav-history">History</a>
+    <a href="/bills" class="nav-history" style="background:#534AB7;">Bills</a>
+    <a href="/setup" class="nav-settings">Settings</a>
+</div>
+
+    </div>
+</body>
+</html>

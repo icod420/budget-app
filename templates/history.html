@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .month { font-size: 16px; font-weight: bold; color: #ffffff; }
+        .status-green { background: #1D9E75; color: white; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: bold; }
+        .status-orange { background: #BA7517; color: white; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: bold; }
+        .status-red { background: #E24B4A; color: white; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: bold; }
+        .row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #0f3460; }
+        .row:last-child { border-bottom: none; }
+        .row-label { color: #a0a0b0; }
+        .row-value { color: #ffffff; }
+        .leftover { font-size: 15px; font-weight: bold; color: #5DCAA5; }
+        .note { font-size: 12px; color: #a0a0b0; font-style: italic; margin-top: 8px; }
+        .cats { font-size: 12px; color: #5DCAA5; margin-top: 6px; }
+        .empty { text-align: center; padding: 40px; color: #a0a0b0; font-size: 14px; }
+        .nav { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
+        .nav a { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; }
+        .nav-back { background: #1D9E75; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Monthly History</h1>
+        <p>{{ data.name }}'s financial journey</p>
+    </div>
+
+    <div class="container">
+
+        <div class="nav">
+            <a href="/" class="nav-back">Back to Calculator</a>
+        </div>
+
+        {% if history %}
+            {% for entry in history %}
+            <div class="card">
+                <div class="card-top">
+                    <span class="month">{{ entry.month }}</span>
+                    {% if entry.status == "GREEN" %}
+                        <span class="status-green">GREEN</span>
+                    {% elif entry.status == "ORANGE" %}
+                        <span class="status-orange">ORANGE</span>
+                    {% else %}
+                        <span class="status-red">RED</span>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <span class="row-label">Pay</span>
+                    <span class="row-value">£{{ "%.2f"|format(entry.pay) }}</span>
+                </div>
+                <div class="row">
+                    <span class="row-label">Total Bills</span>
+                    <span class="row-value">£{{ "%.2f"|format(entry.total_bills) }}</span>
+                </div>
+                <div class="row">
+                    <span class="row-label">Extra Spending</span>
+                    <span class="row-value">£{{ "%.2f"|format(entry.extra) }}</span>
+                </div>
+                <div class="row">
+                    <span class="row-label leftover">Left Over</span>
+                    <span class="leftover">£{{ "%.2f"|format(entry.leftover) }}</span>
+                </div>
+
+                {% if entry.categories %}
+                <div class="cats">
+                    {% for cat, amt in entry.categories.items() %}
+                        {% if amt > 0 %}
+                            {{ cat }}: £{{ "%.2f"|format(amt) }} &nbsp;
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if entry.note %}
+                <div class="note">Note: {{ entry.note }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                No history yet!<br>Calculate your budget to start tracking.
+            </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

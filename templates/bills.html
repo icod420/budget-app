@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bills</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #ffffff; min-height: 100vh; }
+        .header { background: #1D9E75; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: bold; }
+        .header p { font-size: 13px; color: #9FE1CB; margin-top: 4px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .card h3 { font-size: 13px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px; }
+        .bill-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #0f3460; }
+        .bill-row:last-child { border-bottom: none; }
+        .bill-name { font-size: 14px; color: #ffffff; }
+        .bill-amt { font-size: 14px; color: #5DCAA5; font-weight: bold; }
+        .remove-btn { background: #E24B4A; color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+        label { font-size: 12px; color: #a0a0b0; display: block; margin-bottom: 4px; margin-top: 12px; }
+        input { width: 100%; padding: 10px 12px; background: #0f3460; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn { width: 100%; padding: 12px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .total-row { display: flex; justify-content: space-between; padding: 10px 0; font-weight: bold; font-size: 15px; border-top: 1px solid #0f3460; margin-top: 5px; }
+        .total-amt { color: #5DCAA5; }
+        .nav { display: flex; gap: 8px; margin: 15px 0; }
+        .nav a { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; background: #1D9E75; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Manage Bills</h1>
+        <p>{{ data.name }}'s bills</p>
+    </div>
+
+    <div class="container">
+
+        <div class="nav">
+            <a href="/">Back to Calculator</a>
+        </div>
+
+        <div class="card">
+            <h3>Your Current Bills</h3>
+            {% for bill in data.bills %}
+            <div class="bill-row">
+                <span class="bill-name">{{ bill.name }}</span>
+                <span class="bill-amt">£{{ "%.2f"|format(bill.amount) }}</span>
+                <form method="POST" action="/bills" style="margin:0;">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                    <button class="remove-btn" type="submit">Remove</button>
+                </form>
+            </div>
+            {% endfor %}
+            <div class="total-row">
+                <span>Total</span>
+                <span class="total-amt">£{{ "%.2f"|format(data.bills | sum(attribute='amount')) }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Add a New Bill</h3>
+            <form method="POST" action="/bills">
+                <input type="hidden" name="action" value="add">
+                <label>Bill Name</label>
+                <input type="text" name="bill_name" placeholder="e.g. Netflix">
+                <label>Amount (£)</label>
+                <input type="number" name="bill_amount" placeholder="e.g. 15.99" step="0.01">
+                <button class="btn" type="submit">+ Add Bill</button>
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>
