@@ -135,7 +135,12 @@
             <div class="goal-miss">Savings Goal £{{ "%.2f"|format(result.goal) }} — NOT QUITE THIS MONTH</div>
             {% endif %}
         {% endif %}
-
+{% if ai_advice %}
+<div style="background: linear-gradient(135deg, #0f3460, #16213e); border-left: 4px solid #1D9E75; border-radius: 10px; padding: 20px; margin: 15px 0;">
+    <p style="font-size: 12px; color: #1D9E75; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">🤖 AI Financial Advisor</p>
+    <p style="font-size: 14px; color: #ffffff; line-height: 1.6;">{{ ai_advice }}</p>
+</div>
+{% endif %}
         {% if result.tips %}
         <div class="tips">
             {% for tip in result.tips %}
