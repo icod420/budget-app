@@ -5,8 +5,8 @@ import json
 import os
 try:
     from supabase import create_client
-    SUPABASE_URL = "https://njapyphognzbdzjkgkgq.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qYXB5cGhvZ256YmR6amtna2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMwNjIsImV4cCI6MjA5MjAxOTA2Mn0.YcbgLnzFXLLebuV1Q01tdccqro0yHfg3H3sc0KU69lM"  # Replace this with your full key
+    SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://njapyphognzbdzjkgkgq.supabase.co")
+    ANTHROPIC_KEY = os.environ.get("ANTHROPIC_KEY", "")  # Replace this with your full key
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     USE_SUPABASE = True
     print("Supabase connected!")
