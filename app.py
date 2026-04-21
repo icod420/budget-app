@@ -3,16 +3,21 @@ from datetime import datetime
 import anthropic
 import json
 import os
-try:
-    from supabase import create_client
-    SUPABASE_URL = ...
-    SUPABASE_KEY = ...
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    USE_SUPABASE = True
-    print("Supabase connected!")
-except Exception as e:
-    print(f"Supabase not available: {e}")
-    USE_SUPABASE = False
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+USE_SUPABASE = False
+supabase = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        from supabase import create_client
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        USE_SUPABASE = True
+        print("Supabase connected!")
+    except Exception as e:
+        print(f"Supabase not available: {e}")
+        USE_SUPABASE = False
+else:
+    print("Supabase env vars missing — running in local JSON mode")
 
 app = Flask(__name__)
 DATA_FILE = "budget_data.json"
